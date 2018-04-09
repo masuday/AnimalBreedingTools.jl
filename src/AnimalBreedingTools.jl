@@ -1,5 +1,9 @@
+__precompile__()
+
 module AnimalBreedingTools
 
-# package code goes here
+export get_design_matrix
 
-end # module
+include("designmatrix.jl")
+
+end
