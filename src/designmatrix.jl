@@ -62,7 +62,7 @@ function get_design_matrix(x::Vector{<:Real}, nested::Vector{<:Integer}=Int[]; m
    return Z
 end
 
-function get_design_matrix(X::Matrix{<:Real}; maxlev=Int[], cov=Bool[])
+function get_design_matrix(X::Matrix{<:Real}; maxlev::Vector{<:Integer}=Int[], cov::Vector{Bool}=Bool[])
    # check
    (n,neff)=size(X)
    if length(maxlev)>0 && length(maxlev)!=neff
@@ -70,6 +70,11 @@ function get_design_matrix(X::Matrix{<:Real}; maxlev=Int[], cov=Bool[])
    end
    if length(cov)>0 && length(cov)!=neff
       error("argument cov size mismatch")
+   end
+   if length(cov)>0
+      covar=cov
+   else
+      covar=zeros(Bool,neff)
    end
    # levels
    if length(maxlev)>0
@@ -80,7 +85,7 @@ function get_design_matrix(X::Matrix{<:Real}; maxlev=Int[], cov=Bool[])
    else
       lv = zeros(Int,neff)
       for i=1:neff
-         if cov[i]
+         if covar[i]
             lv[i] = 1
          else
             lv[i] = maximum(X[:,i])
@@ -93,8 +98,8 @@ function get_design_matrix(X::Matrix{<:Real}; maxlev=Int[], cov=Bool[])
    collst = 0
    for i=1:neff
       colfst = collst + 1
-      collst = colfst + maxlev[i] - 1
-      Z[:,colfst:collst] .= get_design_matrix(X[:,i],maxlev=lv[i],cov=cov[i])
+      collst = colfst + lv[i] - 1
+      Z[:,colfst:collst] .= get_design_matrix(X[:,i],maxlev=lv[i],cov=covar[i])
    end
-   return Y
+   return Z
 end
