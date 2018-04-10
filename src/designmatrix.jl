@@ -103,3 +103,31 @@ function get_design_matrix(X::Matrix{<:Real}; maxlev::Vector{<:Integer}=Int[], c
    end
    return Z
 end
+
+"""
+     M = directsum(X...)
+
+Returns the direct sum of supplied matrices.
+"""
+function directsum(X::Matrix...)
+    num = length(X)
+    mX = Int[ size(x, 1) for x in X ]
+    nX = Int[ size(x, 2) for x in X ]
+    m = sum(mX)
+    n = sum(nX)
+    Tv = promote_type(map(x->eltype(x), X)...)
+
+    M =	  zeros(Tv,m,n)
+    prev_i = 0
+    prev_j = 0
+    for i=1:num
+       ifst = prev_i + 1
+       ilst = ifst + mX[i] - 1
+       jfst = prev_j + 1
+       jlst = jfst + nX[i] - 1
+       M[ifst:ilst,jfst:jlst] = X[i]
+       prev_i =		      ilst
+       prev_j =		      jlst
+    end
+    return M
+end
