@@ -1,5 +1,5 @@
 """
-    x = solve_pcg(A,b; maxiter=5000,eps=1e-12,reset=50,verbose=false)
+    x = solve_pcg(A,b; maxiter=5000,eps=1e-15,reset=50,verbose=false)
 
 Solve the symmetric positive definite system of equations:
 `A` as sparse left-hand side and `b` as a vector of right-hand side.
