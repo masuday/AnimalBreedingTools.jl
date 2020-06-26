@@ -21,7 +21,7 @@ function solve_pcg(A, b::Vector{Tv};
    p = zeros(Tv,n)
    z = zeros(Tv,n)
    w = zeros(Tv,n)
-   Mi = Diagonal(1./diag(A))
+   Mi = Diagonal(1 ./ diag(A))
    size(A),Tv
    r .= b
    oldtau = 1.0
