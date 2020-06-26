@@ -24,7 +24,7 @@ end
       A = Symmetric(rand(n,n).>0.4) + n*I
       x = ones(n)
       b = A*x
-      s = solve_pcg(A, b, crit=1e-16)
+      s = solve_pcg(A, b, eps=1e-16)
       @test x ≈ s
    end
 end
