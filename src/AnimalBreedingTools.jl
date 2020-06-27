@@ -4,6 +4,7 @@ module AnimalBreedingTools
 
 using Printf
 using LinearAlgebra
+using StatsBase
 
 struct AnimalBreedingDataSetRaw
    pedlist::Matrix{Int}
@@ -14,10 +15,12 @@ struct AnimalBreedingDataSetRaw
 end
 
 export get_design_matrix, directsum, solve_pcg
+export v2r, c2r, r2v, r2c, vech
 export AnimalBreedingDataSetRaw, load_data_set
 
 include("designmatrix.jl")
 include("solver.jl")
+include("tools.jl")
 include("data.jl")
 
 end
