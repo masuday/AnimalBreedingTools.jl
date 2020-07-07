@@ -51,3 +51,21 @@ function solve_pcg(A, b::Vector{Tv};
    end
    x
 end
+
+"""
+   tr = approximate_trace_of_inverse(A)
+"""
+function approximate_trace_of_inverse(A; rounds=1000)
+   if rounds<1
+      throw( ArgumentError("negative rounds") )
+   end
+   tr = Threads.Atomic{Float64}(0.0)
+   n = size(A,1)
+   @threads for iter=1:rounds
+      z = [ifelse(rand()>0.5,1.0,-1.0) for i in 1:n]
+      y = solve_pcg(A,z)
+      #tr = tr + z'*y
+      atomic_add!(tr, z'*y)
+   end
+   return tr.value/rounds
+end
