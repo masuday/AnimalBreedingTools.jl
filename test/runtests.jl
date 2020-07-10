@@ -57,3 +57,16 @@ end
    println("true_tr=$(true_tr)  tr=$(tr)")
    @test abs(true_tr - tr)< 0.1
 end
+
+@testset "Symmetric tridiagonal tools" begin
+   T = SymTridiagonal([2.0,3.0,6.0,7.0,9.0],[1.0,2.0,2.0,3.0])
+   n = size(T,1)
+   dv,ev = chol_symtrid(T)
+   @test Matrix( cholesky(Matrix(T)).L ) ≈ tril(Matrix(SymTridiagonal(dv,ev)))
+   dv,ev = ldlt_symtrid(T)
+   D = diagm(0=>dv)
+   L = tril(Matrix(SymTridiagonal(ones(n),ev)))
+   @test L*D*L' ≈ Matrix(T)
+   takahashi_ldlt_symtrid!(dv,ev)
+   @test Matrix(SymTridiagonal(Symmetric(inv(Matrix(T))))) ≈ Matrix(SymTridiagonal(dv,ev))
+end

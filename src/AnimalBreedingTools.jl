@@ -18,6 +18,7 @@ end
 export get_design_matrix, directsum, solve_pcg, approximate_trace_of_inverse
 export v2r, c2r, r2v, r2c, vech
 export AnimalBreedingDataSetRaw, load_data_set
+export chol_symtrid, ldlt_symtrid, takahashi_ldlt_symtrid!
 
 include("designmatrix.jl")
 include("solver.jl")

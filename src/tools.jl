@@ -42,3 +42,70 @@ function vech(A::AbstractMatrix{T}) where T
    end
    return v
 end
+
+# CS 4220/Math 4260 Numerical Analysis: Linear and Nonlinear Problems
+# by Charles Van Loan
+# http://www.cs.cornell.edu/courses/cs4220/2014sp/CVLBook/chap7.pdf
+"""
+     dv,ev = chol_symtrid(T::SymTridiagonal)
+
+Calculate the Cholesky factor of a symmetric tridiagonal matrix.
+Note that the factor is a lower tridiagonal matrix, and the output is a couple of vectors.
+The factor is stored in `dv` for the diagonal matrix (D) and in `ev` for the off-diagonal elements (L).     
+"""
+function chol_symtrid(T::SymTridiagonal)
+   n = length(T.dv)
+   dv = zeros(n)
+   ev = zeros(n-1)
+   dv[1] = sqrt(T.dv[1])
+   for i=2:n
+      ev[i-1] = T.ev[i-1]/dv[i-1]
+      dv[i] = sqrt(T.dv[i] - ev[i-1]^2)
+   end
+   return dv,ev
+end
+
+# The Tridiagonal LDL T Calculus for the Indefinite Generalized Symmetric Eigenproblem
+# By Peter Strobach
+# https://www.researchgate.net/publication/271196070_THE_TRIDIAGONAL_LDL_T_CALCULUS_FOR_THE_INDEFINITE_GENERALIZED_SYMMETRIC_EIGENPROBLEM
+"""
+    dv,ev = ldlt_symtrid(T::SymTridiagonal)
+
+Calculate the LDLT factor of a symmetric tridiagonal matrix.
+Note that the factor is a lower tridiagonal matrix, and the output is a couple of vectors.
+The factor is stored in `dv` for the diagonal matrix (D) and in `ev` for the off-diagonal elements (L).
+"""
+function ldlt_symtrid(T::SymTridiagonal)
+   n = length(T.dv)
+   dv = zeros(n)
+   ev = zeros(n-1)
+   dv[1] = T.dv[1]
+   for i=1:n-1
+      ev[i] = T.ev[i]/dv[i]
+      dv[i+1] = T.dv[i+1] - (ev[i]^2)*dv[i]
+   end
+   return dv,ev
+end
+
+# Takahashi method for the LDLT factor
+"""
+    takahashi_ldlt_symtrid!(dv,ev)
+
+Compute the sparse inverse (as known as selected inverse) of the LDLT factor of a symmetric trigiagonal matrix.
+The LDLT factor is stored in two vectors (`dv` and `ev`), which should be calculated with `ldlt_symtrid`.
+"""
+function takahashi_ldlt_symtrid!(dv,ev)
+   n = size(dv,1)
+   dv[n] = 1/dv[n]
+   for i=n-1:-1:1
+      evi = ev[i]
+      ev[i] = -evi*dv[i+1]
+      dv[i] = 1/dv[i] - evi*ev[i]
+   end
+end
+
+function get_invT11_fast(T::SymTridiagonal)
+   dv,ev = ldlt_symtrid(T::SymTridiagonal)
+   takahashi_ldlt_symtrid!(dv,ev)
+   return dv[1]
+end
