@@ -1,7 +1,7 @@
 name = "AnimalBreedingTools"
 uuid = "63445ec0-dfd7-4942-b5eb-8dcce790d249"
 authors = ["Yutaka Masuda <masuday@google.com>"]
-version = "0.1.6"
+version = "0.1.7"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

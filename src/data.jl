@@ -5,11 +5,15 @@ Load a small data set for numerical testing.
 """
 function load_data_set(dataset="")
    name = lowercase(dataset)
-   if name=="small5ren" || name=="small5"
+   if name=="small5ren" || name=="small5" || name=="small5ren2"
       if name=="small5ren"
          pedlist = [  10  16  12  16   8  10  15  16  18  15  18  14  10  18  14
                        7  17   1  17  11   7   9  17  19  11  19   4   5  19   2];
          genid = [ 14,  2,  9,  5,  7,  13,  1,  3,  6]
+      elseif name=="small5ren2"
+         pedlist = [  10  16  12  16   8  10  15  16  16  15  17  14  10  17  14
+                       7  17   1  17  11   7   9  17  16  11  16   4   5  17   2];
+         genid = [ 14,  2,  9,  5,  7,  13,  1,  3,  6]   
       else
          pedlist =[
             0  0  0  0  0  0  2  1  2  7  7  11  11   9  11
@@ -48,7 +52,7 @@ function load_data_set(dataset="")
       X = ones(length(y),1)
       A = AnimalBreedingDataSetRaw(pedlist,genid,G,y,X)
    else
-      error("specify one of the following dataset:\n small5, or small5ren")
+      error("specify one of the following dataset:\n small5, small5ren, or small5ren2")
    end
    return A
 end
