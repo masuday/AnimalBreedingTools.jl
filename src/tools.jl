@@ -160,3 +160,51 @@ function bending(B::Matrix{Tv}, W=I(size(B,1)); gamma::Union{Nothing,Float64}=no
 
    return M
 end
+
+"""
+    bentV = bending2(V [, W], mineig=1e-4, tol=eps, corr=false, verbose=false)
+
+Apply an alternative "bending" method to a variance-covariance matrix `V` using a weighting matrix `W`, as described by Jorjani et al. (2003).
+"""
+function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)), tol=eps(one(Tv)), corr::Bool=false, verbose::Bool=false, maxiter=5000) where Tv<:AbstractFloat
+   if !issymmetric(V)
+      throw(ArgumentError("B must be symmetric."))
+   end
+   if !issymmetric(W)
+      throw(ArgumentError("W must be symmetric."))
+   end
+   if size(V) != size(W)
+      throw(DimensionMismatch("V and W"))
+   end
+
+   if corr
+      dim = size(V)
+      Rprev = copy(V)
+      Rn = copy(V)
+      Rnew = copy(V)
+      Dn = zeros(Tv,dim)
+      Δn = zeros(Tv,dim)
+      for i=1:maxiter
+         (D, U) = eigen(Rprev)
+         Dn .= D
+         Dn[ D .< tol ] = 2*mineig
+         Δn .= Dn * (sum(D)/sum(Dn))
+         Rn = (Rprev - (Rprev - U*diagm(Δn)*U')) .* W
+         Rnew = v2r(Rn)
+         if minimum(eigen(Rnew).values)>tol; break; end
+         Rprev .= Rnew
+      end
+      return Rnew
+   else
+      Vprev = copy(V)
+      Vnew = copy(V)
+      for i=1:maxiter
+         (D, U) = eigen(Vprev)
+         D[ D .< tol ] = mineig
+         Vnew .= (Vprev - (Vprev - U*diagm(D)*U')) .* W
+         if minimum(eigen(Vnew).values)>tol; break; end
+         Vprev .= Vnew
+      end
+      return Vnew
+   end
+end
