@@ -162,16 +162,23 @@ function bending(B::Matrix{Tv}, W=I(size(B,1)); gamma::Union{Nothing,Float64}=no
 end
 
 """
-    bentV = bending2(V [, W], corr=false, mineig=eps, tol=eps, maxiter=10000)
+    bentV = bending2(V [, W], corr=false, mineig=eps, tol=eps, maxiter=10000, force=false, verbose=false)
 
 Apply an alternative "bending" method to a variance-covariance matrix `V` using a weighting matrix `W`, as described by Jorjani et al. (2003).
 When omitting `W`, `J` (matrix of ones) will be used, implying the same weights for all elements.
+Jorjani et al. (2003) suggested `W` as the reciprocal of number of individuals used in the estimation of covariances.
+
 The function calculates the eigenvalues of `V`, and an eigenvalue is replaced with `mineig` if it is smaller than `mineig`.
 The covariance matrix is reconstructed with modified eigenvalues, then tests whether it is positive definite by checking the minimum eigenvalue larger than `tol`.
 The function repeats the process until the resulting matrix becomes positive definite, and the number of maximum iterations is defind by `maxiter`.
-If `corr=true`, this function assumes the input is a correlation matrix; otherwise, the input is expected to be a variance-covariance matrix.
+
+See some options below.
+
+- With `corr=true`, this function assumes the input is a correlation matrix; otherwise, the input is expected to be a variance-covariance matrix.
+- With `force=true`, this function iterates the formula `maxiter` times regardless of whether it has converged or not.
+- With `verbose=true`, this function shows the number of iterations required when `force=false`.
 """
-function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)), tol=eps(one(Tv)), corr::Bool=false, maxiter=10000) where Tv<:AbstractFloat
+function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)), tol=eps(one(Tv)), corr=false, maxiter=10000, force=false, verbose=false) where Tv<:AbstractFloat
    if !issymmetric(V)
       throw(ArgumentError("B must be symmetric."))
    end
@@ -183,7 +190,7 @@ function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)
    end
 
    if corr
-      dim = size(V)
+      dim = size(V,1)
       Rprev = copy(V)
       Rn = copy(V)
       Rnew = copy(V)
@@ -192,11 +199,14 @@ function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)
       for i=1:maxiter
          (D, U) = eigen(Rprev)
          Dn .= D
-         Dn[ D .< tol ] = 2*mineig
+         Dn[ D .< tol ] .= 2*mineig
          Δn .= Dn * (sum(D)/sum(Dn))
-         Rn = (Rprev - (Rprev - U*diagm(Δn)*U')) .* W
+         Rn .= Rprev - ((Rprev - U*diagm(Δn)*U') .* W)
          Rnew = v2r(Rn)
-         if minimum(eigen(Rnew).values)>tol; break; end
+         if !force && minimum(eigen(Rnew).values)>tol
+            if verbose; println("round: $(i)"); end
+            break
+         end
          Rprev .= Rnew
       end
       return Rnew
@@ -205,9 +215,12 @@ function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)
       Vnew = copy(V)
       for i=1:maxiter
          (D, U) = eigen(Vprev)
-         D[ D .< tol ] = mineig
-         Vnew .= (Vprev - (Vprev - U*diagm(D)*U')) .* W
-         if minimum(eigen(Vnew).values)>tol; break; end
+         D[ D .< tol ] .= mineig
+         Vnew .= Vprev - ((Vprev - U*diagm(D)*U') .* W)
+         if !force && minimum(eigen(Vnew).values)>tol
+            if verbose; println("round: $(i)"); end
+            break
+         end
          Vprev .= Vnew
       end
       return Vnew

@@ -98,3 +98,69 @@ end
    leg = [normalized_legendre(x,n) for x=(-1:0.1:1),n=0:3]
    @test isapprox(ref,leg,atol=1e-3)
 end
+
+@testset "bending2" begin
+   V=[
+      100  95  80  40  40
+       95 100  95  80  40
+       80  95 100  95  80
+       40  80  95 100  95
+       40  40  80  95 100
+   ]*1.0
+   R = [
+      1.00 0.95 0.80 0.40 0.40
+      0.95 1.00 0.95 0.80 0.40
+      0.80 0.95 1.00 0.95 0.80
+      0.40 0.80 0.95 1.00 0.95
+      0.40 0.40 0.80 0.95 1.00
+   ]
+   W = [
+      1000  500   20   50  200
+       500 1000  500    5   50
+        20  500 1000   20   20
+        50    5   20 1000  200
+       200   50   20  200 1000
+   ]*1.0
+   WeightMatrix = 1 ./ W
+   # reference
+   refV4=[
+      103.2  90.8  79.5  44.5  37.1
+       90.8 106.5  94.2  74.1  44.5
+       79.5  94.2 102.3  94.2  79.5
+       44.5  74.1  94.2 106.5  90.8
+       37.1  44.5  79.5  90.8  103.2
+   ]
+   refV5018=[
+      100.2 94.5 82.9 43.6 39.2
+      94.5 100.6 94.0 60.0 45.9
+      82.9 94.0 100.7 84.9 73.1
+      43.6 60.0 84.9 100.3 94.2
+      39.2 45.9 73.1 94.2 100.2
+   ]
+   refR1 = [
+      1.00 0.87 0.77 0.42 0.36
+      0.87 1.00 0.90 0.70 0.42
+      0.77 0.90 1.00 0.90 0.77
+      0.42 0.70 0.90 1.00 0.87
+      0.36 0.42 0.77 0.87 1.00
+   ]
+   refR1715 = [
+      1.00 0.94 0.78 0.38 0.39
+      0.94 1.00 0.93 0.49 0.41
+      0.78 0.93 1.00 0.74 0.62
+      0.38 0.49 0.74 1.00 0.93
+      0.39 0.41 0.62 0.93 1.00
+   ]
+   # variance
+   V4 = round.(bending2(V,mineig=1e-4,maxiter=4),digits=1)
+   @test V4 ≈ refV4
+   V4 = round.(bending2(V,ones(5,5),mineig=1e-4,maxiter=4),digits=1)
+   @test V4 ≈ refV4
+   V5018 = round.(bending2(V,WeightMatrix,mineig=1e-4,maxiter=5018,force=true,verbose=true),digits=1)
+   @test V5018 ≈ refV5018
+   # correlation
+   R1 = round.(bending2(R,mineig=1e-4,maxiter=1,corr=true),digits=2)
+   @test R1 ≈ refR1
+   R1715 = round.(bending2(R,WeightMatrix,mineig=1e-4,maxiter=1715,corr=true,force=true),digits=2)
+   @test R1715 ≈ refR1715
+end
