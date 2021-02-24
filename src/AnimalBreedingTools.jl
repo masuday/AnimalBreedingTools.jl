@@ -3,6 +3,7 @@ __precompile__()
 module AnimalBreedingTools
 
 using Printf
+using Statistics
 using LinearAlgebra
 using Base.Threads
 using StatsBase
@@ -17,7 +18,7 @@ struct AnimalBreedingDataSetRaw
 end
 
 export get_design_matrix, directsum, solve_pcg, approximate_trace_of_inverse
-export v2r, c2r, r2v, r2c, vech
+export v2r, c2r, r2v, r2c, vech, bending
 export AnimalBreedingDataSetRaw, load_data_set
 export chol_symtrid, ldlt_symtrid, takahashi_ldlt_symtrid!
 export normalized_legendre
