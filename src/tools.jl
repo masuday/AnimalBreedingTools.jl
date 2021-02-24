@@ -162,11 +162,16 @@ function bending(B::Matrix{Tv}, W=I(size(B,1)); gamma::Union{Nothing,Float64}=no
 end
 
 """
-    bentV = bending2(V [, W], mineig=1e-4, tol=eps, corr=false, verbose=false)
+    bentV = bending2(V [, W], corr=false, mineig=eps, tol=eps, maxiter=10000)
 
 Apply an alternative "bending" method to a variance-covariance matrix `V` using a weighting matrix `W`, as described by Jorjani et al. (2003).
+When omitting `W`, `J` (matrix of ones) will be used, implying the same weights for all elements.
+The function calculates the eigenvalues of `V`, and an eigenvalue is replaced with `mineig` if it is smaller than `mineig`.
+The covariance matrix is reconstructed with modified eigenvalues, then tests whether it is positive definite by checking the minimum eigenvalue larger than `tol`.
+The function repeats the process until the resulting matrix becomes positive definite, and the number of maximum iterations is defind by `maxiter`.
+If `corr=true`, this function assumes the input is a correlation matrix; otherwise, the input is expected to be a variance-covariance matrix.
 """
-function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)), tol=eps(one(Tv)), corr::Bool=false, verbose::Bool=false, maxiter=5000) where Tv<:AbstractFloat
+function bending2(V::Matrix{Tv}, W=ones(size(V,1),size(V,2)); mineig=eps(one(Tv)), tol=eps(one(Tv)), corr::Bool=false, maxiter=10000) where Tv<:AbstractFloat
    if !issymmetric(V)
       throw(ArgumentError("B must be symmetric."))
    end
