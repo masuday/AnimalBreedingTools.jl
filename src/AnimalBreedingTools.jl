@@ -21,7 +21,7 @@ export get_design_matrix, directsum, solve_pcg, approximate_trace_of_inverse
 export v2r, c2r, r2v, r2c, vech, bending, bending2
 export AnimalBreedingDataSetRaw, load_data_set
 export chol_symtrid, ldlt_symtrid, takahashi_ldlt_symtrid!
-export normalized_legendre, normalized_legendre_matrix
+export normalized_legendre, normalized_legendre_matrix, hrv_class
 
 include("designmatrix.jl")
 include("solver.jl")
