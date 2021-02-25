@@ -1,5 +1,7 @@
 # AnimalBreedingTools
 
+[![Build Status](https://travis-ci.org/masuday/AnimalBreedingTools.jl.svg?branch=master)](https://travis-ci.org/masuday/AnimalBreedingTools.jl)
+
 ## Quick start
 
 This package provides small functions useful for everyday work in animal breeding (or quantitative genetics).
