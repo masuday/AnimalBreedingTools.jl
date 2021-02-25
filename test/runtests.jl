@@ -25,7 +25,7 @@ end
       x = ones(n)
       b = A*x
       s = solve_pcg(A, b, eps=1e-16)
-      @test x ≈ s
+      @test isapprox(x,s,atol=1e-4)
    end
 end
 
