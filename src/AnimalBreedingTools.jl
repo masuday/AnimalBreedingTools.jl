@@ -22,11 +22,13 @@ export v2r, c2r, r2v, r2c, vech, bending, bending2
 export AnimalBreedingDataSetRaw, load_data_set
 export chol_symtrid, ldlt_symtrid, takahashi_ldlt_symtrid!
 export normalized_legendre, normalized_legendre_matrix, hrv_class
+export disp
 
 include("designmatrix.jl")
 include("solver.jl")
 include("tools.jl")
 include("data.jl")
 include("polynomials.jl")
+include("io.jl")
 
 end
