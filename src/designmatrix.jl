@@ -1,5 +1,6 @@
 """
     Z = get_design_matrix(x, nested=[]; maxlev=0, cov=false)
+    Z = get_design_matrix(x, y)
     Z = get_design_matrix(X; maxlev=[], cov=[])
 
 Returns a design matrix accoding to class variables or covariates in a vector `x` or
@@ -8,6 +9,9 @@ covariate within a class. Option `maxval` specifies the number of levels in this
 Omitting `maxval`, the function uses the maximum integer as the maximum level
 in `x` or `X`. Option `cov` specifies the input is covariate and passes it through
 the output. The matrix `X` doesn't support nested covariates.
+
+If two vectors `x` and `y` are provided, the function returns the design matrix for the intercation between the two effects; the main effects are not included in the result.
+Also, in this case, the function does not accept any additional options.
 
 ```juliadoctest
 julia> x = [1,2,1,1,2]
@@ -20,7 +24,7 @@ julia> X = get_design_matrix(x)
  0.0  1.0
 ```
 """
-function get_design_matrix(x::Vector{<:Real}, nested::Vector{<:Integer}=Int[]; maxlev=0, cov=false)
+function get_design_matrix(x::Vector{<:Real}; nested::Vector{<:Integer}=Int[], maxlev=0, cov=false)
    n = length(x)
 
    # no change
@@ -100,6 +104,37 @@ function get_design_matrix(X::Matrix{<:Real}; maxlev::Vector{<:Integer}=Int[], c
       colfst = collst + 1
       collst = colfst + lv[i] - 1
       Z[:,colfst:collst] .= get_design_matrix(X[:,i],maxlev=lv[i],cov=covar[i])
+   end
+   return Z
+end
+
+function get_design_matrix(x1::Vector{<:Real},x2::Vector{<:Real})
+   X1 = get_design_matrix(x1)
+   X2 = get_design_matrix(x2)
+   return get_interaction_matrix(X1,X2)
+end
+
+"""
+    X = get_interaction_matrix(X1, X2)
+   
+Returns a design matrix for the interaction between effects.
+The design matrices for the two main effects (`X1` and `X2`) should be provided.
+   Note that this function will not check if the supplied matrices are really the design matrices - it just creats all the combination of column products among the input matrices.
+"""
+function get_interaction_matrix(X1::Matrix{<:Real}, X2::Matrix{<:Real})
+   if size(X1,1) != size(X2,1)
+      throw(DimensionMismatch("input matrices X1 and X2"))
+   end
+   m = size(X1,1)
+   n1 = size(X1,2)
+   n2 = size(X2,2)
+   Z = zeros(m,n1*n2)
+   k = 0
+   for i=1:n1
+      for j=1:n2
+         k = k + 1
+         Z[:,k] = X1[:,i] .* X2[:,j]
+      end
    end
    return Z
 end

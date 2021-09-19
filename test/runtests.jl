@@ -5,6 +5,7 @@ using Test
 
 @testset "get_design_matrix" begin
     x = [1,2,1,1,2]
+    z = [1,1,1,2,2]
     y = [0.5,0.6,0.7,0.8,0.9]
     # class variable
     X = get_design_matrix(x)
@@ -13,8 +14,11 @@ using Test
     X = get_design_matrix(x, cov=true)
     @test X == Matrix(convert.(Float64, x[:,:]))
     # nested covariate
-    X = get_design_matrix(y, x, cov=true)
+    X = get_design_matrix(y, nested=x, cov=true)
     @test X == [0.5 0.0; 0.0 0.6; 0.7 0.0; 0.8 0.0; 0.0 0.9]
+    # interaction
+    X = get_design_matrix(x,z)
+    @test X == Float64.([1 0 0 0; 0 0 1 0; 1 0 0 0; 0 1 0 0; 0 0 0 1])
 end
 
 @testset "Jacobi CG" begin
