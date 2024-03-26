@@ -43,6 +43,32 @@ function vech(A::AbstractMatrix{T}) where T
    return v
 end
 
+"""
+   A = unvech(v; n)
+
+Convert a half-stored vector `v` to a square matrix `A` with order `n`.
+It is the inverse function of `vech`.
+When `n` is missing, the function will guess the order.
+"""
+function unvech(v, n=nothing)
+   if(isnothing(n))
+      a = length(v)
+      m = Int.((-1+sqrt(1+8*a))/2)
+   else
+      m = n
+   end
+   M = zeros(m,m)
+   k = 0
+   for j in 1:m
+      for i in j:m
+         k = k + 1
+         M[i,j] = v[k]
+         M[j,i] = v[k]
+      end
+   end
+   return(M)
+end
+
 # CS 4220/Math 4260 Numerical Analysis: Linear and Nonlinear Problems
 # by Charles Van Loan
 # http://www.cs.cornell.edu/courses/cs4220/2014sp/CVLBook/chap7.pdf

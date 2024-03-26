@@ -168,3 +168,20 @@ end
    R1715 = round.(bending2(R,WeightMatrix,mineig=1e-4,maxiter=1715,corr=true,force=true),digits=2)
    @test R1715 ≈ refR1715
 end
+
+@testset "vech and unvech" begin
+   A = [
+      3.0 2.0 1.0
+      2.0 4.0 1.0
+      1.0 1.0 5.0 
+   ]
+   v = [3.0, 2.0, 1.0, 4.0, 1.0, 5.0]
+   n = size(A,1)
+   m = length(v)
+   w = vech(A)
+   @test all(w ≈ v)
+   B = unvech(w)
+   @test all(A ≈ B)
+   C = unvech(w, n)
+   @test all(A ≈ C)
+end
