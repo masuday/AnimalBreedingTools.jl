@@ -40,6 +40,32 @@ function normalized_legendre_matrix(t::Union{UnitRange,StepRange,Vector},n; tmin
 end
 
 """
+    L = legendre_polynomials(n; normalize=true)
+
+Calculates an upper triangular matrix with the `n`-th order Legendre coefficients.
+By default, the coefficients will be normalized as `normalize=true`.
+"""
+function legendre_polynomials(n; normalize=true)
+   L = zeros(n,n)
+   if n>=1
+      L[1,1] = 1.0
+   end
+   if n>=2
+      L[2,2] = 1.0
+   end
+   for i in 3:n
+      v = [0.0; L[1:i-1,i-1]]
+      L[1:i,i] = ((2*(i-1)-1)/(i-1))*v - ((i-2)/(i-1))*L[1:i,i-2]
+   end
+   if normalize
+      for i in 1:n
+         L[1:i,i] = sqrt((2*(i-1)+1)/2.0)*L[1:i,i]
+      end
+   end
+   return(L)
+end
+
+"""
     vare = hrv_class(ve,rangeset)
 
 Generate a vector containing residual variances from a vector of heterogeneous residual variances `ve` and a set of ranges `rangeset`.
